@@ -1,0 +1,573 @@
+{
+  "packet_id": "pkt-r08-01",
+  "title": "Materialize typed manifest declarations",
+  "revision": "r2",
+  "status": "reconciled-final",
+  "plane": "policy",
+  "depends_on": [
+    "current baseline"
+  ],
+  "enables": [
+    "pkt-r08-02"
+  ],
+  "goal": "Turn manifests/ from directory scaffolding into a typed declaration layer for bundle, projection, and generator control objects, with a single canonical manifest contract, a single path basis, and an explicit example migration.",
+  "scope": {
+    "in_scope": [
+      "Typed manifest control schema with class discrimination",
+      "Minimal three-manifest declaration inventory and authoritative surface index",
+      "One valid example per manifest class and explicit invalid examples",
+      "Lifecycle distinction between active and declared",
+      "Canonical repo-relative path rules",
+      "Explicit migration from legacy manifest prose fields and legacy example names"
+    ],
+    "non_goals": [
+      "Jsonnet rendering",
+      "Generator execution",
+      "Python/runtime code",
+      "Executable admission logic",
+      "Derived output generation"
+    ]
+  },
+  "canonical_contract_rules": {
+    "authority_rule": "This packet JSON and its matching packet markdown are the only normative definition of the r08.01 manifest contract. Any companion prose that uses legacy field names must be updated in the same change or marked obsolete and removed from normative references.",
+    "legacy_field_translation": [
+      {
+        "legacy": "id",
+        "canonical": "manifest_id",
+        "rule": "Do not use both. manifest_id is authoritative."
+      },
+      {
+        "legacy": "input_refs",
+        "canonical": "inputs",
+        "rule": "Translate to structured input objects with ref, input_kind, and required."
+      },
+      {
+        "legacy": "output_class_ids",
+        "canonical": "outputs",
+        "rule": "Translate to structured output objects with output_class, path, and committed."
+      },
+      {
+        "legacy": "consuming_plane",
+        "canonical": "owner_plane",
+        "rule": "owner_plane is authoritative."
+      },
+      {
+        "legacy": "admissibility_requirement",
+        "canonical": "admission",
+        "rule": "Translate to an admission object with required and scope_ref."
+      },
+      {
+        "legacy": "handler_id",
+        "canonical": "renderer_identity or generator_identity",
+        "rule": "handler_id is not allowed in the canonical top-level contract. Bundle manifests have no handler identity."
+      },
+      {
+        "legacy": "regen_policy",
+        "canonical": "regen",
+        "rule": "Translate to an object. regen is authoritative."
+      }
+    ],
+    "forbidden_legacy_top_level_fields": [
+      "id",
+      "input_refs",
+      "output_class_ids",
+      "consuming_plane",
+      "admissibility_requirement",
+      "handler_id",
+      "regen_policy"
+    ],
+    "path_basis": {
+      "rule": "All manifest and index path values in this packet are repo-relative and must begin with kernel/.",
+      "allowed_output_root": "kernel/generated/",
+      "allowed_manifest_root": "kernel/manifests/",
+      "disallowed_examples": [
+        "manifests/bundles/kernel-core.bundle.json",
+        "generated/state/bundles/kernel-core.index.json"
+      ]
+    },
+    "example_migration": {
+      "rule": "Legacy family-level example names are replaced by class-specific example names in this packet. The example indexes must be migrated in the same change so there is one authoritative example registry.",
+      "valid_replacements": [
+        {
+          "remove_or_unindex": "kernel/examples/valid/manifest-control-family.bundle.example.json",
+          "replace_with": "kernel/examples/valid/kernel-core.bundle.example.json"
+        },
+        {
+          "remove_or_unindex": "kernel/examples/valid/manifest-control-family.projection.example.json",
+          "replace_with": "kernel/examples/valid/registry.projection.example.json"
+        },
+        {
+          "remove_or_unindex": "kernel/examples/valid/manifest-control-family.generator.example.json",
+          "replace_with": "kernel/examples/valid/schema-export.generator.example.json"
+        }
+      ],
+      "invalid_replacements": [
+        {
+          "remove_or_unindex": "kernel/examples/invalid/manifest-control-family.invalid.example.json",
+          "replace_with": [
+            "kernel/examples/invalid/manifest-control.bad-class.example.json",
+            "kernel/examples/invalid/manifest-control.missing-id.example.json",
+            "kernel/examples/invalid/manifest-control.bad-output.example.json",
+            "kernel/examples/invalid/manifest-control.runtime-leak.example.json"
+          ]
+        }
+      ]
+    }
+  },
+  "kernel_file_matrix": [
+    {
+      "path": "kernel/manifests/bundles/kernel-core.bundle.json",
+      "component_type": "control_object",
+      "status": "MUST-ADD",
+      "manifest_class": "bundle",
+      "initial_lifecycle": "active",
+      "why_required": "Activates the kernel-core authority bundle as a typed manifest declaration."
+    },
+    {
+      "path": "kernel/manifests/projections/registry.projection.json",
+      "component_type": "control_object",
+      "status": "MUST-ADD",
+      "manifest_class": "projection",
+      "initial_lifecycle": "declared",
+      "why_required": "Provides the first declared projection manifest without activating rendering."
+    },
+    {
+      "path": "kernel/manifests/generators/schema-export.generator.json",
+      "component_type": "control_object",
+      "status": "MUST-ADD",
+      "manifest_class": "generator",
+      "initial_lifecycle": "declared",
+      "why_required": "Provides the first declared generator manifest without activating code generation."
+    },
+    {
+      "path": "kernel/examples/valid/kernel-core.bundle.example.json",
+      "component_type": "valid_example",
+      "status": "MUST-ADD",
+      "manifest_class": "bundle",
+      "initial_lifecycle": null,
+      "why_required": "Proves a valid bundle declaration shape."
+    },
+    {
+      "path": "kernel/examples/valid/registry.projection.example.json",
+      "component_type": "valid_example",
+      "status": "MUST-ADD",
+      "manifest_class": "projection",
+      "initial_lifecycle": null,
+      "why_required": "Proves a valid projection declaration shape."
+    },
+    {
+      "path": "kernel/examples/valid/schema-export.generator.example.json",
+      "component_type": "valid_example",
+      "status": "MUST-ADD",
+      "manifest_class": "generator",
+      "initial_lifecycle": null,
+      "why_required": "Proves a valid generator declaration shape."
+    },
+    {
+      "path": "kernel/examples/invalid/manifest-control.bad-class.example.json",
+      "component_type": "invalid_example",
+      "status": "MUST-ADD",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Proves invalid manifest_class rejection."
+    },
+    {
+      "path": "kernel/examples/invalid/manifest-control.missing-id.example.json",
+      "component_type": "invalid_example",
+      "status": "MUST-ADD",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Proves manifest identity is mandatory."
+    },
+    {
+      "path": "kernel/examples/invalid/manifest-control.bad-output.example.json",
+      "component_type": "invalid_example",
+      "status": "MUST-ADD",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Proves structured output rules and path constraints."
+    },
+    {
+      "path": "kernel/examples/invalid/manifest-control.runtime-leak.example.json",
+      "component_type": "invalid_example",
+      "status": "MUST-ADD",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Proves runtime/controller leakage is rejected at declaration time."
+    },
+    {
+      "path": "kernel/schemas/exported/manifest-control-family.schema.json",
+      "component_type": "exported_schema",
+      "status": "MUST-UPDATE",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Must become the single discriminated schema family for the canonical manifest contract."
+    },
+    {
+      "path": "kernel/manifests/surface.index.json",
+      "component_type": "surface_index",
+      "status": "MUST-UPDATE",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Must enumerate concrete manifest instances using canonical kernel/ paths."
+    },
+    {
+      "path": "kernel/examples/valid/example.index.json",
+      "component_type": "example_index",
+      "status": "MUST-UPDATE",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Must remove legacy family-level references and add the three class-specific valid examples."
+    },
+    {
+      "path": "kernel/examples/invalid/example.index.json",
+      "component_type": "example_index",
+      "status": "MUST-UPDATE",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Must remove the legacy invalid family example and add the four targeted invalid examples."
+    },
+    {
+      "path": "kernel/README.md",
+      "component_type": "repo_doc",
+      "status": "MUST-UPDATE",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Must describe manifests with the canonical field set."
+    },
+    {
+      "path": "kernel/kernel.spec.md",
+      "component_type": "repo_doc",
+      "status": "MUST-UPDATE",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Must align prose specification with the final declaration model."
+    }
+  ],
+  "packet_set_consistency_matrix": [
+    {
+      "path": "packets/r08.01/manifests.md",
+      "component_type": "packet_doc",
+      "status": "MUST-UPDATE-OR-REMOVE",
+      "why_required": "Any packet-set prose that still defines the legacy manifest field shape would conflict with the normative packet contract."
+    },
+    {
+      "path": "packets/r08.01/r08.01.final.packet.md",
+      "component_type": "packet_doc",
+      "status": "MUST-MATCH",
+      "why_required": "The markdown packet must match this JSON packet exactly on contract fields, path basis, and example migration rules."
+    },
+    {
+      "path": "packets/r08.01/r08.01.final.packet.json",
+      "component_type": "packet_doc",
+      "status": "MUST-MATCH",
+      "why_required": "The JSON packet is normative and must not diverge from the markdown packet."
+    }
+  ],
+  "deferred_components": [
+    {
+      "path": "kernel/manifests/bundles/compatibility.bundle.json",
+      "status": "DEFER",
+      "defer_to": "later r08 or r09",
+      "why_deferred": "Not needed to prove first declaration activation."
+    },
+    {
+      "path": "kernel/manifests/projections/review-view.projection.json",
+      "status": "DEFER",
+      "defer_to": "r09",
+      "why_deferred": "Projection inventory expansion follows the first declared projection proof."
+    },
+    {
+      "path": "kernel/manifests/projections/admitted-state.projection.json",
+      "status": "DEFER",
+      "defer_to": "r09",
+      "why_deferred": "Depends on typed admitted-state work and rendering activation."
+    },
+    {
+      "path": "kernel/manifests/generators/python-bindings.generator.json",
+      "status": "DEFER",
+      "defer_to": "r09",
+      "why_deferred": "Generator inventory expansion follows first declaration proof and codegen activation."
+    },
+    {
+      "path": "kernel/manifests/generators/evidence-bundle.generator.json",
+      "status": "DEFER",
+      "defer_to": "r09",
+      "why_deferred": "Belongs with derived-output and evidence shaping work."
+    }
+  ],
+  "member_matrix": {
+    "common_required_members": [
+      {
+        "name": "kind",
+        "type": "string",
+        "required": true,
+        "rule": "constant = kernel-manifest-control"
+      },
+      {
+        "name": "manifest_id",
+        "type": "string",
+        "required": true,
+        "rule": "stable patterned identifier"
+      },
+      {
+        "name": "spec_version",
+        "type": "string",
+        "required": true,
+        "rule": "constant = v1"
+      },
+      {
+        "name": "manifest_class",
+        "type": "string",
+        "required": true,
+        "rule": "enum = bundle|projection|generator"
+      },
+      {
+        "name": "status",
+        "type": "string",
+        "required": true,
+        "rule": "enum = active|declared|deprecated"
+      },
+      {
+        "name": "owner_plane",
+        "type": "string",
+        "required": true,
+        "rule": "enum = policy|data_shaping"
+      },
+      {
+        "name": "inputs",
+        "type": "array<object>",
+        "required": true,
+        "rule": "structured refs only"
+      },
+      {
+        "name": "outputs",
+        "type": "array<object>",
+        "required": true,
+        "rule": "structured outputs only"
+      },
+      {
+        "name": "admission",
+        "type": "object",
+        "required": true,
+        "rule": "declares admission requirement and scope ref"
+      },
+      {
+        "name": "regen",
+        "type": "object",
+        "required": true,
+        "rule": "declares regeneration policy"
+      }
+    ],
+    "structured_input_shape": [
+      {
+        "name": "ref",
+        "type": "string",
+        "required": true,
+        "rule": "repo-relative path beginning with kernel/"
+      },
+      {
+        "name": "input_kind",
+        "type": "string",
+        "required": true,
+        "rule": "declares source role such as source_index or contract_index"
+      },
+      {
+        "name": "required",
+        "type": "boolean",
+        "required": true,
+        "rule": "true when packet completion depends on the input"
+      }
+    ],
+    "structured_output_shape": [
+      {
+        "name": "output_class",
+        "type": "string",
+        "required": true,
+        "rule": "logical output class id"
+      },
+      {
+        "name": "path",
+        "type": "string",
+        "required": true,
+        "rule": "repo-relative path beginning with kernel/generated/"
+      },
+      {
+        "name": "committed",
+        "type": "boolean",
+        "required": true,
+        "rule": "declares whether the derived output is committed"
+      }
+    ],
+    "class_specific_requirements": [
+      {
+        "manifest_class": "bundle",
+        "required_members": [
+          "bundle_id",
+          "includes",
+          "excludes",
+          "bundle_scope"
+        ],
+        "forbidden_members": [
+          "renderer_identity",
+          "generator_identity"
+        ],
+        "notes": "Bundle manifests declare bundle composition only."
+      },
+      {
+        "manifest_class": "projection",
+        "required_members": [
+          "projection_id",
+          "input_state_class",
+          "renderer_identity",
+          "output_class"
+        ],
+        "forbidden_members": [
+          "generator_identity"
+        ],
+        "notes": "Projection manifests may declare a renderer identity but stay declared in r08.01."
+      },
+      {
+        "manifest_class": "generator",
+        "required_members": [
+          "generator_id",
+          "generator_identity",
+          "contract_input_refs",
+          "derived_output_classes"
+        ],
+        "forbidden_members": [
+          "renderer_identity"
+        ],
+        "notes": "Generator manifests declare codegen identity without implying code execution."
+      }
+    ],
+    "surface_index_required_members": [
+      {
+        "name": "packet_id",
+        "type": "string",
+        "required": true,
+        "rule": "constant = pkt-r08-01"
+      },
+      {
+        "name": "active_manifest_root",
+        "type": "string",
+        "required": true,
+        "rule": "constant = kernel/manifests/"
+      },
+      {
+        "name": "manifests",
+        "type": "array<object>",
+        "required": true,
+        "rule": "one entry per concrete manifest file"
+      },
+      {
+        "name": "manifests[].manifest_id",
+        "type": "string",
+        "required": true,
+        "rule": "must match file content"
+      },
+      {
+        "name": "manifests[].manifest_class",
+        "type": "string",
+        "required": true,
+        "rule": "must match file content"
+      },
+      {
+        "name": "manifests[].status",
+        "type": "string",
+        "required": true,
+        "rule": "must match file content"
+      },
+      {
+        "name": "manifests[].path",
+        "type": "string",
+        "required": true,
+        "rule": "repo-relative path beginning with kernel/manifests/"
+      }
+    ]
+  },
+  "lifecycle_matrix": [
+    {
+      "manifest_id": "bundle.kernel-core.v1",
+      "manifest_class": "bundle",
+      "status": "active",
+      "reason": "Only active control object needed to prove declaration activation."
+    },
+    {
+      "manifest_id": "projection.registry.v1",
+      "manifest_class": "projection",
+      "status": "declared",
+      "reason": "Typed and indexed, but not yet backed by rendering."
+    },
+    {
+      "manifest_id": "generator.schema-export.v1",
+      "manifest_class": "generator",
+      "status": "declared",
+      "reason": "Typed and indexed, but not yet backed by code generation."
+    }
+  ],
+  "index_rules": [
+    "Every manifest file introduced by this packet must appear exactly once in kernel/manifests/surface.index.json.",
+    "Every path stored in kernel/manifests/surface.index.json must be repo-relative and begin with kernel/.",
+    "The surface index is authoritative for manifest inventory in r08.01.",
+    "Valid and invalid example indexes must remove legacy family-level entries and list only the class-specific examples introduced by this packet."
+  ],
+  "acceptance_criteria": {
+    "schema_acceptance": [
+      "manifest-control-family.schema.json uses class discrimination.",
+      "bundle, projection, and generator have separate required-field sets.",
+      "plain string-only outputs are rejected.",
+      "missing manifest_id is rejected.",
+      "invalid manifest_class is rejected.",
+      "legacy top-level fields such as id, input_refs, output_class_ids, consuming_plane, admissibility_requirement, handler_id, and regen_policy are rejected by canonical examples and schema tests."
+    ],
+    "path_acceptance": [
+      "No manifest or index path in this packet drops the kernel/ prefix.",
+      "No structured output path points outside kernel/generated/.",
+      "No manifest path points outside kernel/."
+    ],
+    "packet_set_consistency": [
+      "No packet prose defines an alternative top-level manifest contract.",
+      "Any companion manifests.md is updated to the canonical field names or explicitly removed from normative use.",
+      "Markdown and JSON packet artifacts match on field names, path rules, and example migration rules."
+    ],
+    "example_migration_acceptance": [
+      "kernel/examples/valid/example.index.json removes legacy family-level manifest-control-family entries.",
+      "kernel/examples/invalid/example.index.json removes the legacy manifest-control-family.invalid.example.json entry.",
+      "The valid example index lists exactly the three class-specific valid examples introduced by this packet.",
+      "The invalid example index lists exactly the four targeted invalid examples introduced by this packet."
+    ],
+    "boundary_acceptance": [
+      "No manifest includes runtime/controller semantics.",
+      "No manifest declares executable behavior.",
+      "Projection and generator manifests remain declared, not active.",
+      "The bundle manifest is the only active manifest in this packet."
+    ]
+  },
+  "implementation_order": [
+    "Expand manifest-control-family.schema.json into a discriminated union using the canonical field set.",
+    "Update or retire any packet-set prose that still uses the legacy field set.",
+    "Create the three concrete manifest control objects.",
+    "Update kernel/manifests/surface.index.json using canonical kernel/ paths.",
+    "Replace legacy example index entries with the class-specific valid and invalid examples.",
+    "Update kernel/README.md and kernel/kernel.spec.md to match the canonical declaration model."
+  ],
+  "normative_fragments": {
+    "structured_input": {
+      "ref": "kernel/structures/core/boundary-objects.index.json",
+      "input_kind": "source_index",
+      "required": true
+    },
+    "structured_output": {
+      "output_class": "bundle_index",
+      "path": "kernel/generated/state/bundles/kernel-core.index.json",
+      "committed": true
+    },
+    "surface_index_entry": {
+      "manifest_id": "bundle.kernel-core.v1",
+      "manifest_class": "bundle",
+      "status": "active",
+      "path": "kernel/manifests/bundles/kernel-core.bundle.json"
+    }
+  }
+}

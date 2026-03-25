@@ -1,0 +1,491 @@
+{
+  "packet_id": "pkt-r08-01",
+  "title": "Materialize typed manifest declarations",
+  "status": "final",
+  "plane": "policy",
+  "depends_on": [
+    "current baseline"
+  ],
+  "enables": [
+    "pkt-r08-02"
+  ],
+  "goal": "Turn manifests/ from directory scaffolding into a typed declaration layer for bundle, projection, and generator control objects.",
+  "why_now": [
+    "Later packets need a stable control surface before normalization and admission can be typed.",
+    "The current packet description is too vague: it names areas to touch but does not define what must become true when the packet lands.",
+    "This packet closes the declaration-model gap without activating rendering, generation, or runtime execution."
+  ],
+  "scope": {
+    "in_scope": [
+      "Typed manifest control schema with class discrimination",
+      "Minimal manifest inventory and catalog/index",
+      "One minimal valid control object per manifest class",
+      "Invalid examples proving edge rejection",
+      "Lifecycle distinction between active and declared",
+      "Structured input/output members for control objects"
+    ],
+    "non_goals": [
+      "Jsonnet rendering",
+      "Generator execution",
+      "Python/runtime code",
+      "Executable admission logic",
+      "Derived output generation"
+    ]
+  },
+  "design_rules": [
+    "Do not introduce runtime/controller semantics into kernel manifest declarations.",
+    "Do not let declared manifests imply executable handlers exist.",
+    "Do not use raw string-only outputs in normative examples.",
+    "Do not point manifest outputs into build/.",
+    "Do not let manifest declarations point outside kernel/."
+  ],
+  "file_matrix": [
+    {
+      "path": "kernel/manifests/bundles/kernel-core.bundle.json",
+      "component_type": "control_object",
+      "status": "MUST-ADD",
+      "manifest_class": "bundle",
+      "initial_lifecycle": "active",
+      "why_required": "Activates the kernel-core authority bundle as a typed manifest declaration."
+    },
+    {
+      "path": "kernel/manifests/projections/registry.projection.json",
+      "component_type": "control_object",
+      "status": "MUST-ADD",
+      "manifest_class": "projection",
+      "initial_lifecycle": "declared",
+      "why_required": "Provides the first declared projection manifest without activating rendering."
+    },
+    {
+      "path": "kernel/manifests/generators/schema-export.generator.json",
+      "component_type": "control_object",
+      "status": "MUST-ADD",
+      "manifest_class": "generator",
+      "initial_lifecycle": "declared",
+      "why_required": "Provides the first declared generator manifest without activating code generation."
+    },
+    {
+      "path": "kernel/examples/valid/kernel-core.bundle.example.json",
+      "component_type": "valid_example",
+      "status": "MUST-EXAMPLE",
+      "manifest_class": "bundle",
+      "initial_lifecycle": null,
+      "why_required": "Proves a valid bundle declaration shape."
+    },
+    {
+      "path": "kernel/examples/valid/registry.projection.example.json",
+      "component_type": "valid_example",
+      "status": "MUST-EXAMPLE",
+      "manifest_class": "projection",
+      "initial_lifecycle": null,
+      "why_required": "Proves a valid projection declaration shape."
+    },
+    {
+      "path": "kernel/examples/valid/schema-export.generator.example.json",
+      "component_type": "valid_example",
+      "status": "MUST-EXAMPLE",
+      "manifest_class": "generator",
+      "initial_lifecycle": null,
+      "why_required": "Proves a valid generator declaration shape."
+    },
+    {
+      "path": "kernel/examples/invalid/manifest-control.bad-class.example.json",
+      "component_type": "invalid_example",
+      "status": "MUST-EXAMPLE",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Proves invalid manifest_class rejection."
+    },
+    {
+      "path": "kernel/examples/invalid/manifest-control.missing-id.example.json",
+      "component_type": "invalid_example",
+      "status": "MUST-EXAMPLE",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Proves manifest identity is mandatory."
+    },
+    {
+      "path": "kernel/examples/invalid/manifest-control.bad-output.example.json",
+      "component_type": "invalid_example",
+      "status": "MUST-EXAMPLE",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Proves structured output rules and path constraints."
+    },
+    {
+      "path": "kernel/examples/invalid/manifest-control.runtime-leak.example.json",
+      "component_type": "invalid_example",
+      "status": "MUST-EXAMPLE",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Proves runtime/controller leakage is rejected at declaration time."
+    },
+    {
+      "path": "kernel/schemas/exported/manifest-control-family.schema.json",
+      "component_type": "exported_schema",
+      "status": "MUST-UPDATE",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Current schema is too thin; it must become a discriminated family with structured members."
+    },
+    {
+      "path": "kernel/manifests/surface.index.json",
+      "component_type": "surface_index",
+      "status": "MUST-UPDATE",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Must enumerate concrete manifest instances with class and lifecycle state."
+    },
+    {
+      "path": "kernel/examples/valid/example.index.json",
+      "component_type": "example_index",
+      "status": "MUST-UPDATE",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Must include the new valid manifest examples."
+    },
+    {
+      "path": "kernel/examples/invalid/example.index.json",
+      "component_type": "example_index",
+      "status": "MUST-UPDATE",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Must include the new invalid manifest examples."
+    },
+    {
+      "path": "kernel/README.md",
+      "component_type": "repo_doc",
+      "status": "MUST-UPDATE",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Must describe manifest declarations as typed control objects, not directory placeholders."
+    },
+    {
+      "path": "kernel/kernel.spec.md",
+      "component_type": "repo_doc",
+      "status": "MUST-UPDATE",
+      "manifest_class": null,
+      "initial_lifecycle": null,
+      "why_required": "Must align prose specification with the final manifest declaration model."
+    }
+  ],
+  "deferred_components": [
+    {
+      "path": "kernel/manifests/bundles/compatibility.bundle.json",
+      "status": "DEFER",
+      "defer_to": "later r08 or r09",
+      "why_deferred": "Not needed to prove first declaration activation; can be introduced after the core model is stable."
+    },
+    {
+      "path": "kernel/manifests/projections/review-view.projection.json",
+      "status": "DEFER",
+      "defer_to": "r09",
+      "why_deferred": "Projection inventory expansion should follow the first declared projection proof."
+    },
+    {
+      "path": "kernel/manifests/projections/admitted-state.projection.json",
+      "status": "DEFER",
+      "defer_to": "r09",
+      "why_deferred": "Depends on typed admitted-state work and rendering activation."
+    },
+    {
+      "path": "kernel/manifests/generators/python-bindings.generator.json",
+      "status": "DEFER",
+      "defer_to": "r09",
+      "why_deferred": "Generator inventory expansion should follow first declaration proof and codegen activation."
+    },
+    {
+      "path": "kernel/manifests/generators/evidence-bundle.generator.json",
+      "status": "DEFER",
+      "defer_to": "r09",
+      "why_deferred": "Belongs with derived-output and evidence shaping work."
+    }
+  ],
+  "member_matrix": {
+    "common_required_members": [
+      {
+        "name": "kind",
+        "type": "string",
+        "required": true,
+        "rule": "constant = kernel-manifest-control"
+      },
+      {
+        "name": "manifest_id",
+        "type": "string",
+        "required": true,
+        "rule": "stable patterned identifier"
+      },
+      {
+        "name": "spec_version",
+        "type": "string",
+        "required": true,
+        "rule": "constant = v1"
+      },
+      {
+        "name": "manifest_class",
+        "type": "string",
+        "required": true,
+        "rule": "enum = bundle|projection|generator"
+      },
+      {
+        "name": "status",
+        "type": "string",
+        "required": true,
+        "rule": "enum = active|declared|deprecated"
+      },
+      {
+        "name": "owner_plane",
+        "type": "string",
+        "required": true,
+        "rule": "enum = policy|data_shaping"
+      },
+      {
+        "name": "inputs",
+        "type": "array<object>",
+        "required": true,
+        "rule": "structured refs only"
+      },
+      {
+        "name": "outputs",
+        "type": "array<object>",
+        "required": true,
+        "rule": "structured outputs only"
+      },
+      {
+        "name": "admission",
+        "type": "object",
+        "required": true,
+        "rule": "declares admission requirement and scope ref"
+      },
+      {
+        "name": "regen",
+        "type": "object",
+        "required": true,
+        "rule": "declares regeneration policy"
+      },
+      {
+        "name": "notes",
+        "type": "string",
+        "required": false,
+        "rule": "optional human note"
+      }
+    ],
+    "structured_input_shape": {
+      "required_members": [
+        "ref",
+        "input_kind",
+        "required"
+      ],
+      "rules": [
+        "ref is a repo-relative or logical contract reference",
+        "input_kind identifies the dependency role",
+        "required is boolean",
+        "raw glob-only entries are not allowed in normative examples"
+      ],
+      "example": {
+        "ref": "schemas/exported/exported-surface.index.json",
+        "input_kind": "contract_index",
+        "required": true
+      }
+    },
+    "structured_output_shape": {
+      "required_members": [
+        "output_class",
+        "path",
+        "committed"
+      ],
+      "rules": [
+        "output_class identifies the declared output family",
+        "path is repo-relative and must stay under kernel/",
+        "committed is boolean",
+        "paths into build/ are forbidden"
+      ],
+      "example": {
+        "output_class": "bundle_index",
+        "path": "generated/state/bundles/kernel-core.index.json",
+        "committed": true
+      }
+    },
+    "class_specific_requirements": {
+      "bundle": {
+        "required_members": [
+          "bundle_id",
+          "bundle_scope",
+          "includes",
+          "excludes"
+        ],
+        "extra_rules": [
+          "must not include runtime package paths",
+          "must not include build/",
+          "must not include external provider runtime artifacts"
+        ]
+      },
+      "projection": {
+        "required_members": [
+          "projection_id",
+          "input_state_class",
+          "renderer_identity",
+          "output_class"
+        ],
+        "extra_rules": [
+          "renderer_identity may be declared but not executable in r08.01",
+          "status should be declared for the initial projection manifest"
+        ]
+      },
+      "generator": {
+        "required_members": [
+          "generator_id",
+          "generator_identity",
+          "contract_input_refs",
+          "derived_output_classes"
+        ],
+        "extra_rules": [
+          "generator_identity may be declared but not executable in r08.01",
+          "status should be declared for the initial generator manifest"
+        ]
+      }
+    },
+    "surface_index_required_members": [
+      "packet_id",
+      "active_manifest_root",
+      "manifests"
+    ]
+  },
+  "lifecycle_matrix": [
+    {
+      "manifest_id": "bundle.kernel-core.v1",
+      "manifest_class": "bundle",
+      "status": "active",
+      "reason": "Only active control object needed to prove declaration activation."
+    },
+    {
+      "manifest_id": "projection.registry.v1",
+      "manifest_class": "projection",
+      "status": "declared",
+      "reason": "Typed and indexed, but not yet backed by rendering."
+    },
+    {
+      "manifest_id": "generator.schema-export.v1",
+      "manifest_class": "generator",
+      "status": "declared",
+      "reason": "Typed and indexed, but not yet backed by code generation."
+    }
+  ],
+  "index_rules": [
+    "Every manifest file introduced by this packet must appear exactly once in manifests/surface.index.json.",
+    "The surface index must record manifest_id, manifest_class, status, and path for each manifest instance.",
+    "The surface index is authoritative for declared manifest inventory in r08.01.",
+    "No manifest path may point outside kernel/."
+  ],
+  "acceptance_criteria": {
+    "schema_acceptance": [
+      "manifest-control-family.schema.json uses class discrimination.",
+      "bundle, projection, and generator have separate required-field sets.",
+      "plain string-only outputs are rejected.",
+      "missing manifest_id is rejected.",
+      "invalid manifest_class is rejected."
+    ],
+    "repository_acceptance": [
+      "Exactly three manifest files are materialized in this packet.",
+      "Exactly one manifest exists per class in this packet.",
+      "Every manifest is listed in manifests/surface.index.json.",
+      "No manifest path points outside kernel/.",
+      "No manifest output points into build/."
+    ],
+    "boundary_acceptance": [
+      "No manifest includes runtime/controller semantics.",
+      "No manifest declares executable behavior.",
+      "Projection and generator manifests remain declared, not active.",
+      "The bundle manifest is the only active manifest in this packet."
+    ],
+    "example_coverage": [
+      "Invalid examples fail for invalid class.",
+      "Invalid examples fail for missing manifest id.",
+      "Invalid examples fail for malformed structured output.",
+      "Invalid examples fail for runtime/controller leakage."
+    ]
+  },
+  "implementation_order": [
+    "Expand manifest-control-family.schema.json into a discriminated union.",
+    "Create the three concrete manifest control objects.",
+    "Update manifests/surface.index.json.",
+    "Add valid examples for each class.",
+    "Add invalid examples for schema and boundary rejection.",
+    "Update valid/invalid example indexes.",
+    "Update README.md and kernel.spec.md to match the final declaration model."
+  ],
+  "example_fragments": {
+    "bundle_example": {
+      "kind": "kernel-manifest-control",
+      "manifest_id": "bundle.kernel-core.v1",
+      "spec_version": "v1",
+      "manifest_class": "bundle",
+      "status": "active",
+      "owner_plane": "policy",
+      "bundle_id": "kernel-core",
+      "bundle_scope": "kernel-core-authority",
+      "inputs": [
+        {
+          "ref": "structures/core/boundary-objects.index.json",
+          "input_kind": "source_index",
+          "required": true
+        },
+        {
+          "ref": "schemas/exported/exported-surface.index.json",
+          "input_kind": "contract_index",
+          "required": true
+        }
+      ],
+      "includes": [
+        "structures/core/**",
+        "schemas/exported/**",
+        "policy/**",
+        "manifests/**"
+      ],
+      "excludes": [
+        "build/**",
+        "generated/**",
+        "schemas/compatibility/openai/**"
+      ],
+      "outputs": [
+        {
+          "output_class": "bundle_index",
+          "path": "generated/state/bundles/kernel-core.index.json",
+          "committed": true
+        }
+      ],
+      "admission": {
+        "required": true,
+        "scope_ref": "policy/admission/scope.index.json"
+      },
+      "regen": {
+        "policy": "declared_only",
+        "authoritative_inputs_only": true
+      }
+    },
+    "surface_index_example": {
+      "packet_id": "pkt-r08-01",
+      "active_manifest_root": "kernel/manifests/",
+      "manifests": [
+        {
+          "manifest_id": "bundle.kernel-core.v1",
+          "manifest_class": "bundle",
+          "status": "active",
+          "path": "manifests/bundles/kernel-core.bundle.json"
+        },
+        {
+          "manifest_id": "projection.registry.v1",
+          "manifest_class": "projection",
+          "status": "declared",
+          "path": "manifests/projections/registry.projection.json"
+        },
+        {
+          "manifest_id": "generator.schema-export.v1",
+          "manifest_class": "generator",
+          "status": "declared",
+          "path": "manifests/generators/schema-export.generator.json"
+        }
+      ]
+    }
+  }
+}
